@@ -1,0 +1,12 @@
+SPY,SPDR S&P 500 ETF Trust 
+QQQ,Invesco QQQ Trust 
+IWM,iShares Russell 2000 ETF 
+DIA,SPDR Dow Jones Industrial Average ETF Trust 
+XLF,Financial Select Sector SPDR Fund 
+EFA,iShares MSCI EAFE ETF 
+EEM,iShares MSCI Emerging Markets ETF 
+XLV,Health Care Select Sector SPDR Fund 
+XLE,Energy Select Sector SPDR Fund 
+XLY,Consumer Discretionary Select Sector SPDR Fund 
+AAPL,Apple
+
