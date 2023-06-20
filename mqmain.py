@@ -74,7 +74,8 @@ class TickerMainWindow(QMainWindow):
         layout.addWidget(toolbar)
 
         self.calc_window = None
-        self.cursor = None
+        self.cursor = Cursor(self.sc.ax, useblit=True)
+        self.cursor.visible = False
         
         widget = QtWidgets.QWidget()
         widget.setLayout(layout)
@@ -140,12 +141,7 @@ class TickerMainWindow(QMainWindow):
         
 
     def on_btnCursorClicked(self):
-        if self.cursor is None:
-            self.cursor = Cursor(self.sc.ax)
-            self.sc.fig.canvas.draw_idle()
-        else:
-            self.cursor = None
-            self.sc.fig.canvas.draw_idle()
+        self.cursor.visible = not self.cursor.visible
 
     def on_btnTrendClicked(self):
         pb: QPushButton = self.sender()
