@@ -49,7 +49,7 @@ class MplCanvas(FigureCanvasQTAgg):
         mpf.plot(df, ax=self.ax, addplot=ap, xrotation=10, **kwargs)
 
         self.ax.tick_params('x', labelbottom=False)
-        self.ax1.tick_params('x', labelsize=6)
+        self.ax1.tick_params('x', labelsize=8)
         # self.ax.get_xaxis().set_visible(False)
         self.fig.tight_layout()
         
