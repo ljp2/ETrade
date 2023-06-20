@@ -1,8 +1,10 @@
 def HA(df):
     # convert all column headers to lowercase
     df.columns = df.columns.str.lower()
+    
     new_df = df[['open', 'high', 'low', 'close']]
-    HA_df = new_df.copy()
+    HA_df = df.copy()
+    
     # close column
     HA_df['close'] = round(
         ((new_df['open'] + new_df['high'] + new_df['low'] + new_df['close'])/4), 2)
@@ -19,4 +21,5 @@ def HA(df):
         new_df['high']).max(axis=1)
     HA_df['low'] = HA_df.loc[:, ['open', 'close']].join(
         new_df['low']).min(axis=1)
+    
     return HA_df

@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 from multiprocessing import Process, Value, Queue
 from collections.abc import Iterable    
-import typing
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,  QGridLayout,
     QRadioButton, QGroupBox, QPushButton, QCheckBox, QMessageBox, QInputDialog,
@@ -16,6 +16,7 @@ from PyQt6.QtGui import QPalette, QColor
 import alpacaAPI as api
 from utils import getAccountValue, setAccountValue
 import pandas as pd
+
 import mqmain
 
 class MyComboBox(QComboBox):
