@@ -35,7 +35,7 @@ class MplCanvas(FigureCanvasQTAgg):
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', marketcolors=mc)
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', marketcolors=mc)
         
-        self.fig = mpf.figure(figsize=(10,7), style=s)
+        self.fig = mpf.figure(figsize=(12,8), style=s)
         
         gs = GridSpec(4,1, figure=self.fig)
  
@@ -48,6 +48,9 @@ class MplCanvas(FigureCanvasQTAgg):
         ap = mpf.make_addplot(df[['K','D']], ax=self.ax1, ylabel='Stoch')
         mpf.plot(df, ax=self.ax, addplot=ap, xrotation=10, **kwargs)
 
+        self.ax.tick_params('x', labelbottom=False)
+        self.ax1.tick_params('x', labelsize=6)
+        # self.ax.get_xaxis().set_visible(False)
         self.fig.tight_layout()
         
         super().__init__(self.fig)
