@@ -2,13 +2,8 @@ import sys
 import mplfinance as mpf
 import pandas_ta as ta
 
-# from PyQt6 import QtCore, QtGui, QtWidgets
-
-# from PyQt6.QtWidgets import ( QMainWindow, QApplication, QLabel, QCheckBox, QPushButton, QRadioButton,
-#         QComboBox, QListWidget, QLineEdit, QLineEdit, QSpinBox, QDoubleSpinBox, QSlider,
-#         QVBoxLayout, QHBoxLayout)
-
 import matplotlib
+from matplotlib.gridspec import GridSpec
 matplotlib.use('QtAgg')
 
 import matplotlib.pyplot as plt
@@ -23,18 +18,13 @@ from alpacaAPI import get_current_price
 from draglines import Hline, TLine
 
 import pandas as pd
-# def read_bars(fn: str):
-#     df = pd.read_csv(f'/Users/ljp2/Alpaca/Data/bars1/{fn}.csv')
-#     df['timestamp'] = pd.to_datetime(df.time)
-#     df.drop('time',axis=1, inplace=True)
-#     df.set_index('timestamp', drop=True, inplace=True)
-#     return df
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, mw, ticker, df:pd.DataFrame, charttype):
         with_stoch_cols = list(df.columns)
         with_stoch_cols.extend(['K', 'D'])
         df.ta.stoch(append=True)
+        df.dropna(inplace=True)
         df.columns = with_stoch_cols
 
         self.mw=mw
@@ -45,46 +35,21 @@ class MplCanvas(FigureCanvasQTAgg):
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', marketcolors=mc)
         s  = mpf.make_mpf_style(base_mpf_style='yahoo', marketcolors=mc)
         
-        self.fig = mpf.figure(figsize=(10,5), style=s)
+        self.fig = mpf.figure(figsize=(10,7), style=s)
         
-        self.ax = self.fig.subplot(211)
-        self.ax1 = self.fig.subplot(212, sharex=self.ax)
+        gs = GridSpec(4,1, figure=self.fig)
+ 
+        self.ax = self.fig.add_subplot(gs[:3, 0])
+        self.ax1 = self.fig.add_subplot(gs[3, 0], sharex=self.ax)
         
-        # (self.ax, self.ax1) = self.fig.subplots(2, 1, gridspec_kw={'height_ratios' : [3,1]})
-        
+        self.ax1.yaxis.tick_right()
+        self.ax1.yaxis.set_label_position("right")
         
         ap = mpf.make_addplot(df[['K','D']], ax=self.ax1, ylabel='Stoch')
         mpf.plot(df, ax=self.ax, addplot=ap, xrotation=10, **kwargs)
 
-        
-        
-        
-        # mpf.plot(df, ax=self.ax, xrotation=10, style=s, **kwargs)
-        # self.ax1.plot(df[['K','D']])
-        
         self.fig.tight_layout()
-    
-         
-         
         
-        
-        
-        # apd = [mpf.make_addplot(df['K'], panel=1),
-        #        mpf.make_addplot(df['D'], panel=1),                
-        # ]
-                  
-        # # self.f, self.axlist = mpf.plot(df, returnfig=True, figsize=(10,5),
-        # #                              addplot=apd, figscale=1.2,
-        # #                              xlabel='', ylabel='', **kwargs, style=s )
-        
-        
-        # mpf.plot(df, figsize=(10,5),  xlabel='', ylabel='',  addplot=apd )
-
-
-        
-        # self.fig:Figure = self.f
-        # self.ax:Axes = self.axlist[0]
-        # self.ax.set_position([0.0, 0.0, 0.95, 1])
         super().__init__(self.fig)
         
         self.current_price = get_current_price(ticker)
@@ -97,9 +62,6 @@ class MplCanvas(FigureCanvasQTAgg):
         self.newTline = None
         self.target_line = None
         self.stop_line = None
-        self.clicks = 0
-        
-        # self.fig.canvas.draw_idle()
         
     def reset_trend(self):
         if self.newTline is None:

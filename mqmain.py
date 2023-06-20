@@ -76,8 +76,6 @@ class TickerMainWindow(QMainWindow):
         self.calc_window = None
         self.cursor = None
         
-
-        # Create a placeholder widget to hold our toolbar and canvas.
         widget = QtWidgets.QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
@@ -138,7 +136,6 @@ class TickerMainWindow(QMainWindow):
         cmd_line_widget.setLayout(cmd_line_layout)
         cmd_line_widget.setFixedHeight(60)
         cmd_line_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        # cmd_line_widget.setStyleSheet("background-color: lightblue")
         return cmd_line_widget
         
 
@@ -239,8 +236,6 @@ class TickerMainWindow(QMainWindow):
                 QMessageBox.critical(self, 'Critical', problem_text)
                 return
         
-        # if not self.calc_window is None:
-        #     return
         if self.sc.addlinemode == 'Trend':
             return
         pb: QPushButton = self.sender()
