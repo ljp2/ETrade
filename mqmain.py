@@ -102,9 +102,13 @@ class TickerMainWindow(QMainWindow):
         widget = QtWidgets.QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
+        
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.on_btnRefreshPrice)
+        self.timer.start(15000)
 
         self.show()
-        
+
     def accountValueLabel(self):
         av = getAccountValue()
         av_label = QLabel("Acct Value : ${}".format(av))
@@ -269,6 +273,7 @@ class TickerMainWindow(QMainWindow):
     def on_btnRefreshPrice(self):
         self.sc.current_price = get_current_price(self.ticker)
         self.sc.current_price_line.moveline(self.sc.current_price)
+
         
     def target_line_is_set(self):
         self.btnTarget.setStyleSheet(f"background-color: {BTN_BACKGROUND}")
