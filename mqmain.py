@@ -1,4 +1,5 @@
 import sys
+from matplotlib.axes._axes import Axes
 import pandas as pd
 from multiprocessing import Value
 
@@ -10,6 +11,7 @@ from PyQt6.QtWidgets import (QMainWindow, QApplication, QWidget, QLabel, QCheckB
 from mplticker import MplCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.widgets import Cursor
+from matplotlib.lines import Line2D
 
 from alpacaAPI import get_bars_dataframe, get_current_price
 from ha import HA
@@ -28,6 +30,27 @@ def getAccountValue():
         av = int(f.readline())
     return av
 
+class MyCursor(Cursor):
+    def __init__(self, ax: Axes, other_axes:Axes=None,
+                 horizOn: bool = True, vertOn: bool = True, useblit: bool = False, **lineprops) -> None:
+        super().__init__(ax, horizOn, vertOn, useblit, linewidth=1, color='k', **lineprops)
+        self.other_axes = other_axes
+        self.other_canvas = other_axes.get_figure().canvas
+        x = sum(self.other_axes.get_xlim()) / 2
+        self.other_cursor:Line2D = self.other_axes.axvline(x, linewidth=1, color='k')
+        
+
+    def onmove(self, event):
+        super().onmove(event)
+        # print(event.xdata)
+        # sys.stdout.flush()
+        x = event.xdata
+        if self.visible and  self.other_axes and x:
+            # print(x, self.other_cursor.get_xdata())
+            self.other_cursor.set_xdata([x,x])
+            self.other_canvas.draw_idle()
+            
+            
 
 class MyToolbar(NavigationToolbar):
     origtoolitems = [*NavigationToolbar.toolitems]
@@ -74,8 +97,7 @@ class TickerMainWindow(QMainWindow):
         layout.addWidget(toolbar)
 
         self.calc_window = None
-        self.cursor = Cursor(self.sc.ax, useblit=True)
-        self.cursor.visible = False
+        self.cursor = MyCursor(self.sc.ax, other_axes=self.sc.ax1, useblit=False)
         
         widget = QtWidgets.QWidget()
         widget.setLayout(layout)
