@@ -117,10 +117,11 @@ class TickerMainWindow(QMainWindow):
             btn.setStyleSheet(f"background-color: {BTN_BACKGROUND}")
             
     
-    def addButton(self, txt, layout, btn_dict, btncallbk) -> QPushButton:
+    def addButton(self, txt, layout, btn_dict, btncallbk, width=None, height=None) -> QPushButton:
         btn = QPushButton(txt)
         btn.setStyleSheet(f"background-color: {BTN_BACKGROUND}")
-        btn.setFixedSize(50, 40)
+        if height: btn.setFixedHeight(height)
+        if width: btn.setFixedWidth(width)
         btn.clicked.connect(btncallbk)
         layout.addWidget(btn)
         btn_dict[txt] = btn
@@ -128,11 +129,11 @@ class TickerMainWindow(QMainWindow):
 
     def cmdLineWidget(self):
         cmd_line_layout = QHBoxLayout()
-        self.btnCursor = self.addButton('+', cmd_line_layout, self.cmd_buttons, self.on_btnCursorClicked)
-        self.btnTrend = self.addButton('/', cmd_line_layout, self.cmd_buttons, self.on_btnTrendClicked)
-        self.btnSR = self.addButton('SR', cmd_line_layout, self.cmd_buttons, self.on_btnSRClicked)
-        self.btnTarget = self.addButton('Tar', cmd_line_layout, self.cmd_buttons, self.on_btnTargetClicked)
-        self.btnStop = self.addButton('Stp', cmd_line_layout, self.cmd_buttons, self.on_btnStopClicked)
+        self.btnCursor = self.addButton('+', cmd_line_layout, self.cmd_buttons, self.on_btnCursorClicked, 50, 40 )
+        self.btnTrend = self.addButton('/', cmd_line_layout, self.cmd_buttons, self.on_btnTrendClicked, 50, 40)
+        self.btnSR = self.addButton('SR', cmd_line_layout, self.cmd_buttons, self.on_btnSRClicked, 50, 40)
+        self.btnTarget = self.addButton('Tar', cmd_line_layout, self.cmd_buttons, self.on_btnTargetClicked, 50, 40)
+        self.btnStop = self.addButton('Stp', cmd_line_layout, self.cmd_buttons, self.on_btnStopClicked, 50, 40)
 
         cmd_line_layout.addWidget(QLabel("    "))
 
@@ -147,8 +148,13 @@ class TickerMainWindow(QMainWindow):
         
         cmd_line_layout.addWidget(QLabel("    "))
         
-        self.btnCalc = self.addButton('Calc', cmd_line_layout, self.cmd_buttons, self.on_btnCalcClicked)
+        self.btnCalc = self.addButton('Calc', cmd_line_layout, self.cmd_buttons, self.on_btnCalcClicked, 50, 40)
+        cmd_line_layout.addWidget(QLabel("    "))
+        
         cmd_line_layout.addStretch()
+        
+        self.btnRefresh = self.addButton('Refresh\nCurrent Price', cmd_line_layout, self.cmd_buttons, self.on_btnRefreshPrice)
+        cmd_line_layout.addWidget(QLabel("    "))
         
         av = getAccountValue()
         avlabel = QLabel("Account Value : ${}".format(av))
@@ -160,7 +166,6 @@ class TickerMainWindow(QMainWindow):
         cmd_line_widget.setFixedHeight(60)
         cmd_line_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         return cmd_line_widget
-        
 
     def on_btnCursorClicked(self):
         self.cursor.visible = not self.cursor.visible
@@ -261,7 +266,10 @@ class TickerMainWindow(QMainWindow):
         self.calc_window = CalcWindow(self, self.ticker)
         self.calc_window.show()
         
-
+    def on_btnRefreshPrice(self):
+        self.sc.current_price = get_current_price(self.ticker)
+        self.sc.current_price_line.moveline(self.sc.current_price)
+        
     def target_line_is_set(self):
         self.btnTarget.setStyleSheet(f"background-color: {BTN_BACKGROUND}")
         
