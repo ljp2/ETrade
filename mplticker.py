@@ -45,16 +45,21 @@ class MplCanvas(FigureCanvasQTAgg):
         
         self.ax1.yaxis.tick_right()
         self.ax1.yaxis.set_label_position("right")
+        self.ax1.set_ylim(bottom=0, top=100)
         
-        adp = mpf.make_addplot(df[['K','D']], ax=self.ax1, ylabel='Stoch')
-        mpf.plot(df, ax=self.ax, addplot=adp, xrotation=10, **kwargs)
+        sf = df[['K', 'D']]
+        aps = [
+                mpf.make_addplot(sf['K'], ax=self.ax1, color='r', width=1),
+                mpf.make_addplot(sf['D'], ax=self.ax1, color='b', width=1),
+        ]
+        mpf.plot(df, ax=self.ax, addplot=aps, xrotation=10, **kwargs)
         
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [80,80], color='r', linewidth=1))
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [20,20], color='g', linewidth=1))
         
         self.ax.tick_params('x', labelbottom=False)
         self.ax1.tick_params('x', labelsize=8)
-        # self.ax.get_xaxis().set_visible(False)
+
         self.fig.tight_layout()
         
         super().__init__(self.fig)
