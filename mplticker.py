@@ -49,8 +49,8 @@ class MplCanvas(FigureCanvasQTAgg):
         
         sf = df[['K', 'D']]
         aps = [
-                mpf.make_addplot(sf['K'], ax=self.ax1, color='r', width=1),
-                mpf.make_addplot(sf['D'], ax=self.ax1, color='b', width=1),
+                mpf.make_addplot(sf['K'], ax=self.ax1, color='orange', width=1),
+                mpf.make_addplot(sf['D'], ax=self.ax1, color='blue', width=1),
         ]
         mpf.plot(df, ax=self.ax, addplot=aps, xrotation=10, **kwargs)
         

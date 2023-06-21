@@ -33,11 +33,11 @@ def getAccountValue():
 class MyCursor(Cursor):
     def __init__(self, ax: Axes, other_axes:Axes=None,
                  horizOn: bool = True, vertOn: bool = True, useblit: bool = False, **lineprops) -> None:
-        super().__init__(ax, horizOn, vertOn, useblit, linewidth=1, color='k', **lineprops)
+        super().__init__(ax, horizOn, vertOn, useblit, linewidth=1, color='black', **lineprops)
         self.other_axes = other_axes
         self.other_canvas = other_axes.get_figure().canvas
         x = sum(self.other_axes.get_xlim()) / 2
-        self.other_cursor:Line2D = self.other_axes.axvline(x, linewidth=1, color='k')
+        self.other_cursor:Line2D = self.other_axes.axvline(x, linewidth=1, color='black')
         
 
     def onmove(self, event):
