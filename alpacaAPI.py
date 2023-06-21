@@ -58,6 +58,7 @@ def determine_start_timeframe(timeframestr: str, timeperiodstr: str):
 def get_bars_dataframe(ticker, timeframestr: str, time_periodstr: str):
     start, timeframe = determine_start_timeframe(time_periodstr, timeframestr)
     df = stock_bars_from(ticker, timeframe=timeframe, start=start)
+    df = df.tz_convert('US/Eastern')
     return df
 
 

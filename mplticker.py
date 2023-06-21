@@ -52,7 +52,7 @@ class MplCanvas(FigureCanvasQTAgg):
                 mpf.make_addplot(sf['K'], ax=self.ax1, color='orange', width=1),
                 mpf.make_addplot(sf['D'], ax=self.ax1, color='blue', width=1),
         ]
-        mpf.plot(df, ax=self.ax, addplot=aps, xrotation=10, **kwargs)
+        mpf.plot(df, ax=self.ax, addplot=aps, xrotation=10,  datetime_format='%b%d %I:%M%p',**kwargs)
         
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [80,80], color='r', linewidth=1))
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [20,20], color='g', linewidth=1))
