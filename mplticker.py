@@ -13,6 +13,7 @@ from matplotlib.axes import Axes
 from matplotlib.backend_bases import Event
 from matplotlib.lines import Line2D
 
+
 from alpacaAPI import get_current_price
 
 from draglines import Hline, TLine
@@ -23,7 +24,7 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, mw, ticker, df:pd.DataFrame, charttype):
         with_stoch_cols = list(df.columns)
         with_stoch_cols.extend(['K', 'D'])
-        df.ta.stochrsi(append=True)
+        df.ta.stoch(append=True)
         df.dropna(inplace=True)
         df.columns = with_stoch_cols
 
@@ -45,9 +46,12 @@ class MplCanvas(FigureCanvasQTAgg):
         self.ax1.yaxis.tick_right()
         self.ax1.yaxis.set_label_position("right")
         
-        ap = mpf.make_addplot(df[['K','D']], ax=self.ax1, ylabel='Stoch')
-        mpf.plot(df, ax=self.ax, addplot=ap, xrotation=10, **kwargs)
-
+        adp = mpf.make_addplot(df[['K','D']], ax=self.ax1, ylabel='Stoch')
+        mpf.plot(df, ax=self.ax, addplot=adp, xrotation=10, **kwargs)
+        
+        self.ax1.add_line(Line2D(self.ax1.get_xlim(), [80,80], color='r', linewidth=1))
+        self.ax1.add_line(Line2D(self.ax1.get_xlim(), [20,20], color='g', linewidth=1))
+        
         self.ax.tick_params('x', labelbottom=False)
         self.ax1.tick_params('x', labelsize=8)
         # self.ax.get_xaxis().set_visible(False)
