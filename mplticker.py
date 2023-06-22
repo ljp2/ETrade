@@ -24,7 +24,7 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, mw, ticker, df:pd.DataFrame, charttype):
         with_stoch_cols = list(df.columns)
         with_stoch_cols.extend(['K', 'D'])
-        df.ta.stoch(append=True)
+        df.ta.stochrsi(append=True)
         df.dropna(inplace=True)
         df.columns = with_stoch_cols
 
