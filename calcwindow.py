@@ -52,7 +52,7 @@ class CalcWindow(QWidget):
         row += 1
         self.pct_risk_LE = self.addLabelLineEdit(row, '% Risk', "{:.2f}".format(self.risk_percent), self.on_risk_percent_done)
         row += 1
-        self.dollars_risk_LE = self.addLabelLineEdit(row, '$ Risk', "${:.0f}".format(self.risk_dollars), self.on_risk_dollars_done)
+        self.dollars_risk_LE = self.addLabelLineEdit(row, '$ Risk', "{:.0f}".format(self.risk_dollars), self.on_risk_dollars_done)
         row += 1
         self.layout.addWidget(QLabel(" "), row, 0)
         row += 1
@@ -102,30 +102,29 @@ class CalcWindow(QWidget):
         try:
             risk_percent = float(txt)
             risk_dollars = 0.01 * risk_percent * self.av
-            num_shares = round( risk_dollars / self.potential_loss_per_share)
         except:
-            risk_percent = self.last_risk_dollars
+            risk_percent = self.last_risk_percent
             risk_dollars = self.last_risk_dollars
         self.risk_percent = risk_percent
         self.risk_dollars = risk_dollars
-        self.num_shares = num_shares
+        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
         self.pct_risk_LE.setText("{:.2f} ".format(self.risk_percent))
         self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
         self.num_shares_lbl.setText("{}".format(self.num_shares))
-        self.last_risk_percent = self.risk_percent
+        self.last_risk_dollars = self.risk_dollars    
         
+           
     def on_risk_dollars_done(self, event=None):
         txt = self.dollars_risk_LE.text()
         try:
             risk_dollars = float(txt)
             risk_percent = (risk_dollars / self.av) * 100
-            num_shares = round( risk_dollars / self.potential_loss_per_share)
         except:
-            risk_percent = self.last_risk_dollars
+            risk_percent = self.last_risk_percent
             risk_dollars = self.last_risk_dollars
         self.risk_percent = risk_percent
         self.risk_dollars = risk_dollars
-        self.num_shares = num_shares
+        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
         self.pct_risk_LE.setText("{:.2f} ".format(self.risk_percent))
         self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
         self.num_shares_lbl.setText("{}".format(self.num_shares))
