@@ -29,6 +29,8 @@ class CalcWindow(QWidget):
         self.risk_percent = .5
         self.risk_dollars = 0.01 * self.risk_percent * self.av
         self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
+        self.last_risk_percent = self.risk_percent
+        self.last_risk_dollars = self.risk_dollars
         
         self.layout:QGridLayout = QGridLayout()
         row = 0
@@ -48,11 +50,9 @@ class CalcWindow(QWidget):
         row += 1
         self.pl_ratio_label = self.addLabelLabel(row, 'Profit Loss Ratio', "{:.2f}".format(self.profit_loss_ratio))
         row += 1
-        self.pct_risk_LE = self.addLabelLineEdit(row, '% Risk', "{:.2f}%".format(self.risk_percent), self.on_mouse_leave_risk_percent)
-        self.pct_risk_LE.setInputMask('0.00')
+        self.pct_risk_LE = self.addLabelLineEdit(row, '% Risk', "{:.2f}".format(self.risk_percent), self.on_risk_percent_done)
         row += 1
-        self.dollars_risk_LE = self.addLabelLineEdit(row, '$ Risk', "${:.0f}".format(self.risk_dollars), self.on_mouse_leave_risk_dollars)
-        self.dollars_risk_LE.setInputMask('0009')
+        self.dollars_risk_LE = self.addLabelLineEdit(row, '$ Risk', "${:.0f}".format(self.risk_dollars), self.on_risk_dollars_done)
         row += 1
         self.layout.addWidget(QLabel(" "), row, 0)
         row += 1
@@ -77,6 +77,7 @@ class CalcWindow(QWidget):
         le.setFont(QFont('Arial', 24))
         if callback is not None:
             le.leaveEvent = callback
+            le.returnPressed.connect(callback)
         self.layout.addWidget(qlabel_1, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
         self.layout.addWidget(QLabel(':'), row, 1, alignment=Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(le, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -96,19 +97,36 @@ class CalcWindow(QWidget):
         return price
 
     
-    def on_mouse_leave_risk_percent(self, event):
+    def on_risk_percent_done(self, event=None):
         txt = self.pct_risk_LE.text()
-        self.risk_percent = float(txt)
-        self.risk_dollars = 0.01 * self.risk_percent * self.av
-        self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
-        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
-        self.num_shares_lbl.setText("{}".format(self.num_shares))
-    
-        
-    def on_mouse_leave_risk_dollars(self, event):
-        txt = self.dollars_risk_LE.text()
-        self.risk_dollars = float(txt)
-        self.risk_percent = (self.risk_dollars / self.av) * 100
+        try:
+            risk_percent = float(txt)
+            risk_dollars = 0.01 * risk_percent * self.av
+            num_shares = round( risk_dollars / self.potential_loss_per_share)
+        except:
+            risk_percent = self.last_risk_dollars
+            risk_dollars = self.last_risk_dollars
+        self.risk_percent = risk_percent
+        self.risk_dollars = risk_dollars
+        self.num_shares = num_shares
         self.pct_risk_LE.setText("{:.2f} ".format(self.risk_percent))
-        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
+        self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
         self.num_shares_lbl.setText("{}".format(self.num_shares))
+        self.last_risk_percent = self.risk_percent
+        
+    def on_risk_dollars_done(self, event=None):
+        txt = self.dollars_risk_LE.text()
+        try:
+            risk_dollars = float(txt)
+            risk_percent = (risk_dollars / self.av) * 100
+            num_shares = round( risk_dollars / self.potential_loss_per_share)
+        except:
+            risk_percent = self.last_risk_dollars
+            risk_dollars = self.last_risk_dollars
+        self.risk_percent = risk_percent
+        self.risk_dollars = risk_dollars
+        self.num_shares = num_shares
+        self.pct_risk_LE.setText("{:.2f} ".format(self.risk_percent))
+        self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
+        self.num_shares_lbl.setText("{}".format(self.num_shares))
+        self.last_risk_dollars = self.risk_dollars
