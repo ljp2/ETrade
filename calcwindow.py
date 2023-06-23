@@ -7,34 +7,24 @@ from utils import getAccountValue, setAccountValue
 
 from alpacaAPI import get_current_price
 
-class MyLineEdit(QLineEdit):
-
-    def __init__(self, text:str):
-        super().__init__(text)
-
-    def enterEvent(self, QEvent):
-        self.enter_txt = self.text()
-
-    def leaveEvent(self, QEvent):
-        print("Leaving text", self.text())
 
 class CalcWindow(QWidget):
     
     def __init__(self, mainwindow, ticker:str):
         super().__init__()
         self.mainwindow = mainwindow
-        long = self.mainwindow.rbLong.isChecked()
-        short = self.mainwindow.rbShort.isChecked()
-        current_price = get_current_price(ticker)
-        target_price = self.get_target_price()
-        stop_price = self.get_stop_price()
-        if long:
-            self.potential_profit_per_share = target_price - current_price
-            self.potential_loss_per_share = current_price - stop_price
-        if short:
-            self.potential_profit_per_share = current_price - target_price
-            self.potential_loss_per_share = stop_price - current_price 
-        profit_loss_ratio = round(self.potential_profit_per_share/self.potential_loss_per_share, 2)
+        self.long = self.mainwindow.rbLong.isChecked()
+        self.short = self.mainwindow.rbShort.isChecked()
+        self.current_price = get_current_price(ticker)
+        self.target_price = self.get_target_price()
+        self.stop_price = self.get_stop_price()
+        if self.long:
+            self.potential_profit_per_share = self.target_price - self.current_price
+            self.potential_loss_per_share = self.current_price - self.stop_price
+        if self.short:
+            self.potential_profit_per_share = self.current_price - self.target_price
+            self.potential_loss_per_share = self.stop_price - self.current_price 
+        self.profit_loss_ratio = round(self.potential_profit_per_share/self.potential_loss_per_share, 2)
         self.av = getAccountValue()
         self.risk_percent = .5
         self.risk_dollars = 0.01 * self.risk_percent * self.av
@@ -46,25 +36,27 @@ class CalcWindow(QWidget):
         row += 1
         self.layout.addWidget(QLabel(" "), row, 0)
         row += 1
-        self.addLabelLabel(row, 'Current Price', "${:.2f}".format(current_price))
+        self.addLabelLabel(row, 'Current Price', "${:.2f}".format(self.current_price))
         row += 1
-        self.addLabelLabel(row, 'Target Price', "${:.2f}".format(target_price))
+        self.addLabelLabel(row, 'Target Price', "${:.2f}".format(self.target_price))
         row += 1
-        self.addLabelLabel(row, 'Stop Price', "${:.2f}".format(stop_price))
+        self.addLabelLabel(row, 'Stop Price', "${:.2f}".format(self.stop_price))
         row += 1
-        self.pot_profit = self.addLabelLabel(row, 'Potential Profit', "${:.2f}".format(self.potential_profit_per_share))
+        self.pot_profit_label = self.addLabelLabel(row, 'Potential Profit', "${:.2f} per share".format(self.potential_profit_per_share))
         row += 1
-        self.pot_loss = self.addLabelLabel(row, 'Potential Loss', "${:.2f}".format(self.potential_loss_per_share))
+        self.pot_loss_label= self.addLabelLabel(row, 'Potential Loss', "${:.2f} per share".format(self.potential_loss_per_share))
         row += 1
-        self.pl_ratio = self.addLabelLabel(row, 'Profit Loss Ratio', "{:.2f}".format(profit_loss_ratio))
+        self.pl_ratio_label = self.addLabelLabel(row, 'Profit Loss Ratio', "{:.2f}".format(self.profit_loss_ratio))
         row += 1
         self.pct_risk_LE = self.addLabelLineEdit(row, '% Risk', "{:.2f}%".format(self.risk_percent), self.on_mouse_leave_risk_percent)
+        self.pct_risk_LE.setInputMask('0.00')
         row += 1
         self.dollars_risk_LE = self.addLabelLineEdit(row, '$ Risk', "${:.0f}".format(self.risk_dollars), self.on_mouse_leave_risk_dollars)
+        self.dollars_risk_LE.setInputMask('0009')
         row += 1
         self.layout.addWidget(QLabel(" "), row, 0)
         row += 1
-        self.addLabelLineEdit(row, 'Number of Shares', "{}".format(self.num_shares))               
+        self.num_shares_lbl = self.addLabelLineEdit(row, 'Number of Shares', "{}".format(self.num_shares))               
         self.setLayout(self.layout)
 
 
@@ -81,7 +73,7 @@ class CalcWindow(QWidget):
     def addLabelLineEdit(self, row:int, label:str, text:str, callback=None):
         qlabel_1 = QLabel(label, alignment=Qt.AlignmentFlag.AlignRight)
         qlabel_1.setFont(QFont('Arial', 24))
-        le = MyLineEdit(text=text)
+        le = QLineEdit(text=text)
         le.setFont(QFont('Arial', 24))
         if callback is not None:
             le.leaveEvent = callback
@@ -102,18 +94,21 @@ class CalcWindow(QWidget):
         yy = self.mainwindow.sc.stop_line.get_ydata()
         price = round(yy[0],2)
         return price
+
     
     def on_mouse_leave_risk_percent(self, event):
         txt = self.pct_risk_LE.text()
-        self.risk_percent = float(txt.split('%')[0])
+        self.risk_percent = float(txt)
         self.risk_dollars = 0.01 * self.risk_percent * self.av
-        self.dollars_risk_LE.setText("${:.0f}".format(self.risk_dollars))
-
+        self.dollars_risk_LE.setText("{:.0f}".format(self.risk_dollars))
+        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
+        self.num_shares_lbl.setText("{}".format(self.num_shares))
+    
         
     def on_mouse_leave_risk_dollars(self, event):
         txt = self.dollars_risk_LE.text()
-        self.risk_dollars = float(txt.split('$')[1])
+        self.risk_dollars = float(txt)
         self.risk_percent = (self.risk_dollars / self.av) * 100
-        self.pct_risk_LE.setText("{:.2f}%".format(self.risk_percent))
-
-
+        self.pct_risk_LE.setText("{:.2f} ".format(self.risk_percent))
+        self.num_shares = round( self.risk_dollars / self.potential_loss_per_share)
+        self.num_shares_lbl.setText("{}".format(self.num_shares))
