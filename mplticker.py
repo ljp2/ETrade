@@ -22,12 +22,14 @@ import pandas as pd
 
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, mw, ticker, df:pd.DataFrame, charttype):
-        with_stoch_cols = list(df.columns)
-        with_stoch_cols.extend(['K', 'D'])
+        with_stoch_atr_cols = list(df.columns)
+        with_stoch_atr_cols.extend(['K', 'D', 'ATR'])
         df.ta.stochrsi(append=True)
+        df.ta.atr(append=True)
         df.dropna(inplace=True)
-        df.columns = with_stoch_cols
+        df.columns = with_stoch_atr_cols
 
+        self.current_ATR = df.iloc[-1]['ATR']
         self.mw=mw
         self.ticker = ticker
         
@@ -38,26 +40,37 @@ class MplCanvas(FigureCanvasQTAgg):
         
         self.fig = mpf.figure(figsize=(12,8), style=s)
         
-        gs = GridSpec(4,1, figure=self.fig)
+        gs = GridSpec(5,1, figure=self.fig)
  
         self.ax = self.fig.add_subplot(gs[:3, 0])
-        self.ax1 = self.fig.add_subplot(gs[3, 0], sharex=self.ax)
+        self.ax2 = self.fig.add_subplot(gs[3, 0], sharex=self.ax)    
+        self.ax1 = self.fig.add_subplot(gs[4, 0], sharex=self.ax)
+        
+        self.ax2.yaxis.tick_right()
+        self.ax2.yaxis.set_label_position("right")
+        self.ax2.set_ylabel('')
         
         self.ax1.yaxis.tick_right()
         self.ax1.yaxis.set_label_position("right")
-        self.ax1.set_ylim(bottom=0, top=100)
+        self.ax1.set_ylim(bottom=-5, top=105)
+        self.ax1.set_yticks([0,20,40,60,80,100])
         
-        sf = df[['K', 'D']]
+        sf = df[['K', 'D', 'ATR']]
         aps = [
+                mpf.make_addplot(sf['ATR'], ax=self.ax2, color='black', width=1),
                 mpf.make_addplot(sf['K'], ax=self.ax1, color='orange', width=1),
                 mpf.make_addplot(sf['D'], ax=self.ax1, color='blue', width=1),
         ]
         mpf.plot(df, ax=self.ax, addplot=aps, xrotation=10,  datetime_format='%b%d %I:%M%p',**kwargs)
         
+        atr_txt = f'ATR = {self.current_ATR:.2f}'
+        self.ax.text(0.05, 0.95, atr_txt, transform=self.ax.transAxes, fontsize=10, verticalalignment='top')
+        
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [80,80], color='r', linewidth=1))
         self.ax1.add_line(Line2D(self.ax1.get_xlim(), [20,20], color='g', linewidth=1))
         
         self.ax.tick_params('x', labelbottom=False)
+        self.ax2.tick_params('x', labelbottom=False)
         self.ax1.tick_params('x', labelsize=8)
 
         self.fig.tight_layout()

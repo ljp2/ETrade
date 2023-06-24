@@ -37,7 +37,7 @@ class MyCursor(Cursor):
         self.other_axes = other_axes
         self.other_canvas = other_axes.get_figure().canvas
         x = sum(self.other_axes.get_xlim()) / 2
-        self.other_cursor:Line2D = self.other_axes.axvline(x, linewidth=1, color='black')
+        self.other_cursor:Line2D = self.other_axes.axvline(x, lw=1, ls='--', color='black')
         
 
     def onmove(self, event):
@@ -97,7 +97,7 @@ class TickerMainWindow(QMainWindow):
         layout.addWidget(toolbar)
 
         self.calc_window = None
-        self.cursor = MyCursor(self.sc.ax, other_axes=self.sc.ax1, useblit=False)
+        self.cursor = MyCursor(self.sc.ax, other_axes=self.sc.ax1, useblit=False, ls='--')
         
         widget = QtWidgets.QWidget()
         widget.setLayout(layout)
