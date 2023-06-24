@@ -154,7 +154,7 @@ class TickerMainWindow(QMainWindow):
         cmd_line_layout.addWidget(QLabel("    "))
         
         self.btnCalc = self.addButton('Calc', cmd_line_layout, self.cmd_buttons, self.on_btnCalcClicked, 50, 40)
-        self.btnAddMoveTarget = self.addButton('Set\nTarget', cmd_line_layout, self.cmd_buttons, self.on_btnAMTarget)
+        self.btnAddMoveTarget = self.addButton('Set/Move\nTarget', cmd_line_layout, self.cmd_buttons, self.on_btnAMTarget)
         cmd_line_layout.addWidget(QLabel("    "))
         
         cmd_line_layout.addStretch()
@@ -177,6 +177,8 @@ class TickerMainWindow(QMainWindow):
         if self.rbLong.isChecked() + self.rbShort.isChecked()  == 0:
             QMessageBox.critical(self, 'Critical', 'Select Long or Short')
             return
+        if not self.checkStopPrice():
+            return
         if self.sc.stop_line:
             stop_y = self.sc.stop_line.get_ydata()[0]
             price_line_y = self.sc.current_price_line.get_ydata()[0]
@@ -194,9 +196,8 @@ class TickerMainWindow(QMainWindow):
         if self.sc.target_line:
             self.sc.target_line.moveline(y2atr)
         else:
-            line = Hline(self.sc.ax, y2atr, ticker=self, lineclass='Target', color='green')
-            self.sc.ax.add_line(line)
-            self.sc.fig.canvas.draw_idle()
+            self.sc.addTargetLine(self.sc.ax, y=y2atr)
+
 
     def on_btnCursorClicked(self):
         self.cursor.visible = not self.cursor.visible
@@ -258,6 +259,17 @@ class TickerMainWindow(QMainWindow):
         if self.sc.stop_line is None:
             QMessageBox.critical(self, 'Critical', 'No Stop Line')
             return
+        if not self.checkTargetStop():
+            return
+        
+        if self.sc.addlinemode == 'Trend':
+            return
+        pb: QPushButton = self.sender()
+        self.clearButtonBackgrounds()
+        self.calc_window = CalcWindow(self, self.ticker)
+        self.calc_window.show()
+        
+    def checkTargetStop(self) -> bool:
         long = self.rbLong.isChecked()
         short = self.rbShort.isChecked()
         current_price = get_current_price(self.ticker)
@@ -267,35 +279,50 @@ class TickerMainWindow(QMainWindow):
             if stop_price > target_price:
                 problem_text = "Long and\nstop_price > target_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return
+                return False
             if target_price < current_price:
                 problem_text = "Long and\ntarget_price < current_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return
+                return False
             if stop_price > current_price:
                 problem_text = "Long and\nstop_price > current_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return     
+                return False     
         if short:
             if target_price > stop_price:
                 problem_text = "Short and\ntarget_price > stop_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return
+                return False
             if target_price > current_price:
                 problem_text = "Short and\ntarget_price > current_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return
+                return False
             if stop_price < current_price:
                 problem_text = "Short and\nstop_price < current_price"
                 QMessageBox.critical(self, 'Critical', problem_text)
-                return
-        
-        if self.sc.addlinemode == 'Trend':
-            return
-        pb: QPushButton = self.sender()
-        self.clearButtonBackgrounds()
-        self.calc_window = CalcWindow(self, self.ticker)
-        self.calc_window.show()
+                return False
+        return True
+    
+    def checkStopPrice(self):
+        if self.sc.stop_line is None:
+            QMessageBox.critical(self, 'Critical', 'No Stop Line')
+            return False
+        short = self.rbShort.isChecked()
+        long = self.rbLong.isChecked()
+        current_price = get_current_price(self.ticker)
+        stop_price = self.sc.stop_line.get_ydata()[0]
+        if long:
+            if stop_price > current_price:
+                problem_text = "Long and\nstop_price > current_price"
+                QMessageBox.critical(self, 'Critical', problem_text)
+                return False     
+        if short:
+            if stop_price < current_price:
+                problem_text = "Short and\nstop_price < current_price"
+                QMessageBox.critical(self, 'Critical', problem_text)
+                return False
+        return True
+    
         
     def on_btnRefreshPrice(self):
         self.sc.current_price = get_current_price(self.ticker)
