@@ -139,24 +139,41 @@ class MplCanvas(FigureCanvasQTAgg):
                 if y is None:
                     pass
                 elif (self.target_line is None):
-                    line = Hline(self.ax, y, ticker=self, lineclass='Target', color='green')
-                    self.ax.add_line(line)
+                    self.addTargetLine(self.ax, y)
+                    # line = Hline(self.ax, y, ticker=self, lineclass='Target', color='green')
+                    # self.ax.add_line(line)
 
-                    self.fig.canvas.draw_idle()
-                    self.addlinemode = None
-                    self.target_line = line
-                    self.mw.target_line_is_set()
+                    # self.fig.canvas.draw_idle()
+                    # self.addlinemode = None
+                    # self.target_line = line
+                    # self.mw.target_line_is_set()
 
             case 'Stop':
                 y = event.ydata
                 if y is None:
                     pass
                 elif (self.stop_line is None):
-                    line = Hline(self.ax, y, ticker=self, lineclass='Stop', color='red')
-                    self.ax.add_line(line)
-                    self.fig.canvas.draw_idle()
-                    self.addlinemode = None
-                    self.stop_line = line
-                    self.mw.stop_line_is_set()
+                    self.addStopLine(self.ax, y)
+                    # line = Hline(self.ax, y, ticker=self, lineclass='Stop', color='red')
+                    # self.ax.add_line(line)
+                    # self.fig.canvas.draw_idle()
+                    # self.addlinemode = None
+                    # self.stop_line = line
+                    # self.mw.stop_line_is_set()
 
+
+    def addTargetLine(self, ax, y):
+        line = Hline(ax, y, ticker=self, lineclass='Target', color='green')
+        self.ax.add_line(line)
+        self.fig.canvas.draw_idle()
+        self.addlinemode = None
+        self.target_line = line
+        self.mw.target_line_is_set()
         
+    def addStopLine(self, ax, y):
+        line = Hline(ax, y, ticker=self, lineclass='Stop', color='red')
+        self.ax.add_line(line)
+        self.fig.canvas.draw_idle()
+        self.addlinemode = None
+        self.stop_line = line
+        self.mw.stop_line_is_set()    
