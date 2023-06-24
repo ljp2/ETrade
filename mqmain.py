@@ -16,6 +16,7 @@ from matplotlib.lines import Line2D
 from alpacaAPI import get_bars_dataframe, get_current_price
 from ha import HA
 from calcwindow import CalcWindow
+from draglines import Hline
 
 BTN_BACKGROUND = 'floralwhite'
 
@@ -153,6 +154,7 @@ class TickerMainWindow(QMainWindow):
         cmd_line_layout.addWidget(QLabel("    "))
         
         self.btnCalc = self.addButton('Calc', cmd_line_layout, self.cmd_buttons, self.on_btnCalcClicked, 50, 40)
+        self.btnAddMoveTarget = self.addButton('Set\nTarget', cmd_line_layout, self.cmd_buttons, self.on_btnAMTarget)
         cmd_line_layout.addWidget(QLabel("    "))
         
         cmd_line_layout.addStretch()
@@ -170,6 +172,31 @@ class TickerMainWindow(QMainWindow):
         cmd_line_widget.setFixedHeight(60)
         cmd_line_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         return cmd_line_widget
+    
+    def on_btnAMTarget(self):
+        if self.rbLong.isChecked() + self.rbShort.isChecked()  == 0:
+            QMessageBox.critical(self, 'Critical', 'Select Long or Short')
+            return
+        if self.sc.stop_line:
+            stop_y = self.sc.stop_line.get_ydata()[0]
+            price_line_y = self.sc.current_price_line.get_ydata()[0]
+            current_atr = self.sc.current_ATR
+        else:
+            return
+        if self.rbLong.isChecked():
+            price_stop_diff = price_line_y - stop_y
+            y2atr = price_line_y + 2 * price_stop_diff
+        elif self.rbShort.isChecked():
+            price_stop_diff = stop_y - price_line_y
+            y2atr = price_line_y - 2 * price_stop_diff
+        else:
+            return
+        if self.sc.target_line:
+            self.sc.target_line.moveline(y2atr)
+        else:
+            line = Hline(self.sc.ax, y2atr, ticker=self, lineclass='Target', color='green')
+            self.sc.ax.add_line(line)
+            self.sc.fig.canvas.draw_idle()
 
     def on_btnCursorClicked(self):
         self.cursor.visible = not self.cursor.visible
