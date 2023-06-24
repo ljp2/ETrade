@@ -48,7 +48,7 @@ class MplCanvas(FigureCanvasQTAgg):
         
         self.ax2.yaxis.tick_right()
         self.ax2.yaxis.set_label_position("right")
-        self.ax2.set_ylabel('')
+        self.ax2.set_ylabel('ATR')
         
         self.ax1.yaxis.tick_right()
         self.ax1.yaxis.set_label_position("right")
