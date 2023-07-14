@@ -5,7 +5,7 @@ from multiprocessing import Process, Value, Queue
 from collections.abc import Iterable    
 
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,  QGridLayout,
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,  QGridLayout, QScrollArea,
     QRadioButton, QGroupBox, QPushButton, QCheckBox, QMessageBox, QInputDialog,
     QComboBox, QLabel
 )
@@ -91,7 +91,32 @@ class MainWindow(QWidget):
         col2_layout.addWidget(pi_group)
         col2_layout.addStretch()
 
-        main_layout.addWidget(self.tickerButtonGroup())
+        # Adding the ticker buttons
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True) 
+        content_widget = QWidget()
+        scroll_area.setWidget(content_widget)
+        
+        
+        main_tb_layout = QVBoxLayout() 
+        content_widget.setLayout(main_tb_layout)
+        
+        ticker_button_group = QGroupBox('Tickers')
+        ticker_button_group_layout = QVBoxLayout()
+        ticker_button_group.setLayout(ticker_button_group_layout)
+        
+        for ticker in  getTickers():
+            button = QPushButton(ticker)
+            button.clicked.connect(self.ticker_button_action)
+            ticker_button_group_layout.addWidget(button)
+        ticker_button_group_layout.addStretch()
+        
+        main_tb_layout.addWidget(ticker_button_group)
+        
+        
+        main_layout.addWidget(scroll_area)
+        
+        
         main_layout.addLayout(col2_layout)
         top_layout.addWidget(self.accountValueWidget())
         top_layout.addLayout(main_layout)
