@@ -44,9 +44,9 @@ def longshort(df):
     
 
 tickers = list( pd.read_csv("tickers.txt", header=None)[0])
-# dfwk = yf.download(tickers=tickers, period='5d', interval='1h', group_by='tickers')
+dfwk = yf.download(tickers=tickers, period='5d', interval='1h', group_by='tickers')
 # dfwk.to_pickle('wk.pickle')
-dfwk = pd.read_pickle('wk.pickle')
+# dfwk = pd.read_pickle('wk.pickle')
 
 long = []
 short = []
